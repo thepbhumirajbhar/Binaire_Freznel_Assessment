@@ -1,11 +1,18 @@
 import React from 'react';
-import { View, Flex, Button, Picker, Item, Heading, Divider } from '@adobe/react-spectrum';
+import { View, Flex, Button, Slider, Picker, Item, Heading, Divider } from '@adobe/react-spectrum';
 
 export default function ControlsPanel({
   onFilesSelected,
   onStitch,
   projection,
   setProjection,
+  zoom,
+  setZoom,
+  rotation,
+  setRotation,
+  onExport,
+  exportFormat,
+  setExportFormat,
   isProcessing,
   canStitch
 }) {
@@ -51,6 +58,25 @@ export default function ControlsPanel({
           isDisabled={!canStitch || isProcessing}
         >
           {isProcessing ? '⚙️ Processing...' : '✨ Stitch Panorama'}
+        </Button>
+
+        <Divider size="S" />
+
+        <Heading level={4}>Viewport Controls</Heading>
+        <Slider label="Zoom Level" minValue={0.5} maxValue={3} step={0.1} value={zoom} onChange={setZoom} />
+        <Slider label="Rotation Angle" minValue={-180} maxValue={180} step={1} value={rotation} onChange={setRotation} />
+
+        <Divider size="S" />
+
+        <Heading level={4}>Export Output</Heading>
+        <Picker label="Export Format" selectedKey={exportFormat} onSelectionChange={setExportFormat} width="100%">
+          <Item key="image/jpeg">JPEG (.jpg)</Item>
+          <Item key="image/png">PNG (.png)</Item>
+          <Item key="image/avif">AVIF (HDR Supported) (.avif)</Item>
+        </Picker>
+
+        <Button variant="accent" width="100%" onPress={onExport}>
+          💾 Export Panorama
         </Button>
       </Flex>
     </View>
