@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StitcherService } from './services/StitcherServices';
 import ControlsPanel from './components/ControlsPanel';
 import PanoramaViewer from './components/PanoramaViewer';
 import './styles/app.css';
 
 const stitcher = new StitcherService();
+const DEFAULT_STATUS = 'Ready: Select multiple images to stitch.';
 
 export default function App() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -14,12 +15,25 @@ export default function App() {
   const [rotation, setRotation] = useState(0);
   const [exportFormat, setExportFormat] = useState('image/png');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [statusMsg, setStatusMsg] = useState('Ready: Select multiple images to stitch.');
+  const [statusMsg, setStatusMsg] = useState(DEFAULT_STATUS);
+  
+  const statusTimer = useRef(null);
 
-  // File select hote hi instant canvas preview set karna
+  // Status message set karne aur 4 seconds baad auto-clear karne ka function
+  const updateStatus = (msg, autoClear = true) => {
+    setStatusMsg(msg);
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+
+    if (autoClear) {
+      statusTimer.current = setTimeout(() => {
+        setStatusMsg(DEFAULT_STATUS);
+      }, 4000);
+    }
+  };
+
   const handleFilesSelected = async (files) => {
     setSelectedFiles(files);
-    setStatusMsg(`${files.length} images selected. Click 'Stitch Panorama' to process.`);
+    updateStatus(`${files.length} images selected. Click 'Stitch Panorama' to process.`);
 
     if (files.length > 0) {
       const img = await stitcher.loadImage(files[0]);
@@ -34,21 +48,21 @@ export default function App() {
 
   const handleStitch = async () => {
     if (selectedFiles.length === 0) {
-      setStatusMsg('⚠️ Please select at least 1 or 2 images to stitch.');
+      updateStatus('⚠️ Please select at least 1 or 2 images to stitch.');
       return;
     }
 
     setIsProcessing(true);
-    setStatusMsg('Processing images with OpenCV and applying projection warp...');
+    updateStatus('Processing images with OpenCV and applying projection warp...', false);
 
     try {
       const loadedImgs = await Promise.all(selectedFiles.map((f) => stitcher.loadImage(f)));
       const resultDataUrl = await stitcher.stitchImages(loadedImgs, projection);
       setStitchedImage(resultDataUrl);
-      setStatusMsg('✅ Panorama stitched successfully!');
+      updateStatus('✅ Panorama stitched successfully!');
     } catch (err) {
       console.error(err);
-      setStatusMsg('❌ Stitching failed: ' + err.message);
+      updateStatus('❌ Stitching failed: ' + err.message);
     } finally {
       setIsProcessing(false);
     }
@@ -56,7 +70,7 @@ export default function App() {
 
   const handleExport = async () => {
     if (!stitchedImage) {
-      setStatusMsg('⚠️ Please stitch a panorama first before exporting.');
+      updateStatus('⚠️ Please stitch a panorama first before exporting.');
       return;
     }
 
@@ -65,13 +79,13 @@ export default function App() {
 
     if (window.electronAPI) {
       const res = await window.electronAPI.saveImage({ dataUrl: stitchedImage, defaultName: fileName });
-      if (res.success) setStatusMsg(`✅ Exported to ${res.filePath}`);
+      if (res.success) updateStatus(`✅ Exported to ${res.filePath}`);
     } else {
       const link = document.createElement('a');
       link.download = fileName;
       link.href = stitchedImage;
       link.click();
-      setStatusMsg(`✅ Downloaded ${fileName}`);
+      updateStatus(`✅ Downloaded ${fileName}`);
     }
   };
 
@@ -82,7 +96,7 @@ export default function App() {
           <h1 className="text-2xl font-bold tracking-tight text-white">Panoramic Image Stitching Tool</h1>
           <p className="text-xs text-neutral-400 mt-1">Built with Electron, React, Tailwind & OpenCV.js</p>
         </div>
-        <div className="bg-neutral-900 border border-neutral-700 px-4 py-2 rounded-lg text-sm">
+        <div className="bg-neutral-900 border border-neutral-700 px-4 py-2 rounded-lg text-sm transition-all duration-300">
           Status: <span className="font-semibold text-emerald-400">{statusMsg}</span>
         </div>
       </div>
