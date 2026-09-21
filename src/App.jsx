@@ -16,14 +16,25 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMsg, setStatusMsg] = useState('Ready: Select multiple images to stitch.');
 
-  const handleFilesSelected = (files) => {
+  // File select hote hi instant canvas preview set karna
+  const handleFilesSelected = async (files) => {
     setSelectedFiles(files);
-    setStatusMsg(`${files.length} images selected (JPEG, PNG, AVIF supported).`);
+    setStatusMsg(`${files.length} images selected. Click 'Stitch Panorama' to process.`);
+
+    if (files.length > 0) {
+      const img = await stitcher.loadImage(files[0]);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      setStitchedImage(canvas.toDataURL('image/png'));
+    }
   };
 
   const handleStitch = async () => {
-    if (selectedFiles.length < 2) {
-      setStatusMsg('⚠️ Please select at least 2 overlapping images to stitch.');
+    if (selectedFiles.length === 0) {
+      setStatusMsg('⚠️ Please select at least 1 or 2 images to stitch.');
       return;
     }
 
@@ -43,7 +54,6 @@ export default function App() {
     }
   };
 
-  // Export Panorama File
   const handleExport = async () => {
     if (!stitchedImage) {
       setStatusMsg('⚠️ Please stitch a panorama first before exporting.');
@@ -92,7 +102,7 @@ export default function App() {
           exportFormat={exportFormat}
           setExportFormat={setExportFormat}
           isProcessing={isProcessing}
-          canStitch={selectedFiles.length >= 2}
+          canStitch={selectedFiles.length >= 1}
         />
       </div>
     </div>
