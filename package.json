@@ -1,0 +1,29 @@
+{
+  "name": "panoramic-stitcher-app",
+  "version": "1.0.0",
+  "description": "Panoramic image stitching desktop app using Electron and React",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "electron:start": "electron .",
+    "start": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@adobe/react-spectrum": "^3.47.5",
+    "@react-spectrum/theme-default": "^3.6.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "electron": "^44.4.3",
+    "vite": "^8.3.0",
+    "wait-on": "^9.1.0"
+  }
+}

@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build and output folders
+dist/
+out/
+build/
+release/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# OS / Editor clutter
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+!.vscode/settings.json
