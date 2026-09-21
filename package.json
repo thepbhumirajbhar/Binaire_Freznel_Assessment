@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@adobe/react-spectrum": "^3.47.5",
     "@react-spectrum/theme-default": "^3.6.1",
