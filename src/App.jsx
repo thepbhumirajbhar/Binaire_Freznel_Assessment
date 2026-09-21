@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
+import ControlsPanel from './components/ControlsPanel';
+import PanoramaViewer from './components/PanoramaViewer';
 import './styles/app.css';
 
 export default function App() {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [stitchedImage, setStitchedImage] = useState(null);
+  const [projection, setProjection] = useState('cylindrical');
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [exportFormat, setExportFormat] = useState('image/png');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [statusMsg, setStatusMsg] = useState('Ready: Select multiple images to stitch.');
+
+  const handleFilesSelected = (files) => {
+    setSelectedFiles(files);
+    setStatusMsg(`${files.length} images selected (JPEG, PNG, AVIF supported).`);
+  };
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white p-6">
-      {/* Top Header Bar */}
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-neutral-800">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Panoramic Image Stitching Tool</h1>
@@ -17,9 +30,23 @@ export default function App() {
         </div>
       </div>
 
-      {/* Grid Layout Container */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
-        <div className="text-neutral-500 text-sm">Viewer Area Loading...</div>
+        <PanoramaViewer imageSrc={stitchedImage} zoom={zoom} rotation={rotation} />
+        <ControlsPanel
+          onFilesSelected={handleFilesSelected}
+          onStitch={() => {}}
+          projection={projection}
+          setProjection={setProjection}
+          zoom={zoom}
+          setZoom={setZoom}
+          rotation={rotation}
+          setRotation={setRotation}
+          onExport={() => {}}
+          exportFormat={exportFormat}
+          setExportFormat={setExportFormat}
+          isProcessing={isProcessing}
+          canStitch={selectedFiles.length >= 2}
+        />
       </div>
     </div>
   );
