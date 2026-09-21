@@ -15,8 +15,8 @@ export default function PanoramaViewer({ imageSrc, zoom, rotation }) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#171717';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#737373';
-      ctx.font = '16px sans-serif';
+      ctx.fillStyle = '#e5e5e5';
+      ctx.font = '500 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('📷 Select images from the right panel to view & stitch', canvas.width / 2, canvas.height / 2);
       return;
