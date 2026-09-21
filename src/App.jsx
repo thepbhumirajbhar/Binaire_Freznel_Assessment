@@ -21,7 +21,6 @@ export default function App() {
     setStatusMsg(`${files.length} images selected (JPEG, PNG, AVIF supported).`);
   };
 
-  // Run Panorama Stitching
   const handleStitch = async () => {
     if (selectedFiles.length < 2) {
       setStatusMsg('⚠️ Please select at least 2 overlapping images to stitch.');
@@ -41,6 +40,28 @@ export default function App() {
       setStatusMsg('❌ Stitching failed: ' + err.message);
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  // Export Panorama File
+  const handleExport = async () => {
+    if (!stitchedImage) {
+      setStatusMsg('⚠️ Please stitch a panorama first before exporting.');
+      return;
+    }
+
+    const ext = exportFormat === 'image/jpeg' ? 'jpg' : exportFormat === 'image/avif' ? 'avif' : 'png';
+    const fileName = `panorama_${projection}_${Date.now()}.${ext}`;
+
+    if (window.electronAPI) {
+      const res = await window.electronAPI.saveImage({ dataUrl: stitchedImage, defaultName: fileName });
+      if (res.success) setStatusMsg(`✅ Exported to ${res.filePath}`);
+    } else {
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = stitchedImage;
+      link.click();
+      setStatusMsg(`✅ Downloaded ${fileName}`);
     }
   };
 
@@ -67,7 +88,7 @@ export default function App() {
           setZoom={setZoom}
           rotation={rotation}
           setRotation={setRotation}
-          onExport={() => {}}
+          onExport={handleExport}
           exportFormat={exportFormat}
           setExportFormat={setExportFormat}
           isProcessing={isProcessing}
