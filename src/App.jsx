@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { StitcherService } from './services/StitcherServices';
 import ControlsPanel from './components/ControlsPanel';
 import PanoramaViewer from './components/PanoramaViewer';
 import './styles/app.css';
+
+const stitcher = new StitcherService();
 
 export default function App() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -16,6 +19,29 @@ export default function App() {
   const handleFilesSelected = (files) => {
     setSelectedFiles(files);
     setStatusMsg(`${files.length} images selected (JPEG, PNG, AVIF supported).`);
+  };
+
+  // Run Panorama Stitching
+  const handleStitch = async () => {
+    if (selectedFiles.length < 2) {
+      setStatusMsg('⚠️ Please select at least 2 overlapping images to stitch.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setStatusMsg('Processing images with OpenCV and applying projection warp...');
+
+    try {
+      const loadedImgs = await Promise.all(selectedFiles.map((f) => stitcher.loadImage(f)));
+      const resultDataUrl = await stitcher.stitchImages(loadedImgs, projection);
+      setStitchedImage(resultDataUrl);
+      setStatusMsg('✅ Panorama stitched successfully!');
+    } catch (err) {
+      console.error(err);
+      setStatusMsg('❌ Stitching failed: ' + err.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -34,7 +60,7 @@ export default function App() {
         <PanoramaViewer imageSrc={stitchedImage} zoom={zoom} rotation={rotation} />
         <ControlsPanel
           onFilesSelected={handleFilesSelected}
-          onStitch={() => {}}
+          onStitch={handleStitch}
           projection={projection}
           setProjection={setProjection}
           zoom={zoom}
