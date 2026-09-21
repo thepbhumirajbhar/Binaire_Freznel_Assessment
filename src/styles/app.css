@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+.canvas-grab {
+  cursor: grab;
+}
+.canvas-grab:active {
+  cursor: grabbing;
+}
